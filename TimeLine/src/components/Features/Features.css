@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600;700&display=swap');
+
+.features {
+  position: relative;
+  width: 100%;
+  background: #000000; /* Black background */
+  padding: 4rem 2rem;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.features-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.features-title {
+  font-size: 2.5rem;
+  font-weight: 600; /* Bolder */
+  color: #ffffff;
+  margin-bottom: 1rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.features-subtitle {
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  margin-bottom: 2rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300; /* Thin */
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features-diagram {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.diagram-image {
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Keep shadow for depth, no border-radius */
+}

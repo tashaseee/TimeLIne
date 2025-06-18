@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600;700&display=swap');
+
+.header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #121212 100%);
+  padding: 1.2rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(45, 45, 45, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: translateY(-2px);
+}
+
+.logo-image {
+  height: 34px;
+  width: auto;
+  filter: drop-shadow(0 0 8px rgba(224, 224, 224, 0.3));
+  transition: transform 0.5s ease;
+}
+
+.logo:hover .logo-image {
+  transform: rotate(15deg);
+}
+
+.logo-text {
+  font-size: 1.7rem;
+  font-weight: 300; /* Thin */
+  background: linear-gradient(90deg, #f0f0f0 0%, #c0c0c0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.logo-text::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(224, 224, 224, 0.7) 0%, transparent 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.logo:hover .logo-text::after {
+  transform: scaleX(1);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+.nav-link {
+  color: #b0b0b0;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 300; /* Thin */
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0.6rem 0;
+  letter-spacing: 0.5px;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #e0e0e0;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.lang-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.lang-dropdown:hover .nav-link {
+  color: #ffffff;
+}
+
+.btn {
+  background: linear-gradient(135deg, #333 0%, #222 100%);
+  padding: 0.7rem 1.8rem;
+  border-radius: 30px;
+  color: #e0e0e0;
+  font-weight: 500; /* Slightly bolder */
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(45, 45, 45, 0.5);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #444 0%, #333 100%);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #252525;
+  border-radius: 6px;
+  padding: 0.5rem 0;
+  min-width: 110px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  border: 1px solid #2d2d2d;
+}
+
+.dropdown-item {
+  padding: 0.6rem 1.2rem;
+  color: #b0b0b0;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-weight: 300; /* Thin */
+  font-size: 0.95rem;
+}
+
+.dropdown-item:hover {
+  background: #333;
+  color: #ffffff;
+}
+
+.dropdown-item.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.3s;
+  font-size: 0.7rem;
+  margin-left: 6px;
+  position: relative;
+  top: -1px;
+}
+/* Header.css - добавить в конец файла */
+.nav-link.active {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.nav-link.active::after {
+  transform: scaleX(1);
+  background: #ffffff;
+}
+.how-to-use {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  padding: 5rem 2rem;
+  color: #ffffff;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
