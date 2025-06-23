@@ -6,7 +6,7 @@ import Footer from '../Footer/Footer';
 import VideoInfoModal from '../Gallery/VideoInfoModal';
 import DeleteConfirmationModal from '../Gallery/DeleteConfirmationModal';
 import UploadBlock from '../Gallery/UploadBlock';
-import SmokeBackground from '../Gallery/SmokeBackground';
+import LoadingProcessBlock from '../Gallery/LoadingProcessBlock';
 import './Gallery.css';
 import deleteIcon from '../../assets/deleteicon.svg';
 import searchIcon from '../../assets/search.svg';
@@ -27,14 +27,18 @@ const Gallery = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videoToDelete, setVideoToDelete] = useState(null);
   const [showUploadBlock, setShowUploadBlock] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [uploadingVideoTitle, setUploadingVideoTitle] = useState('');
   const [galleryItems, setGalleryItems] = useState([
-    { id: 1, title: 'Product Demo 2023', duration: '3:45', date: '2025-06-15', tags: ['product', 'demo', 'tech'] },
+    { id: 1, title: 'Product Demo 2025', duration: '3:45', date: '2025-06-15', tags: ['product', 'demo', 'tech'] },
     { id: 2, title: 'Showcase Video', duration: '4:10', date: '2025-06-16', tags: ['showcase', 'event'] },
     { id: 3, title: 'Tech Presentation', duration: '5:15', date: '2025-06-17', tags: ['tech', 'innovation'] },
     { id: 4, title: 'Event Highlights', duration: '3:20', date: '2025-06-14', tags: ['event', 'highlights'] },
     { id: 5, title: 'Tutorial Guide', duration: '4:50', date: '2025-06-13', tags: ['tutorial', 'education'] },
     { id: 6, title: 'Product Overview', duration: '3:45', date: '2025-06-12', tags: ['product', 'overview'] },
-    { id: 7, title: 'Demo Reel 2023', duration: '3:45', date: '2025-06-11', tags: ['demo', 'reel'] },
+    { id: 7, title: 'Demo Reel 2025', duration: '3:45', date: '2025-06-11', tags: ['demo', 'reel'] },
     { id: 8, title: 'Tech Conference', duration: '3:45', date: '2025-06-10', tags: ['conference', 'tech'] },
     { id: 9, title: 'Showcase Event', duration: '3:45', date: '2025-06-09', tags: ['showcase', 'event'] },
   ]);
@@ -151,6 +155,19 @@ const Gallery = () => {
     setShowUploadBlock(!showUploadBlock);
   };
 
+  const handleUploadStart = (videoTitle) => {
+    setUploadingVideoTitle(videoTitle);
+    setIsUploading(true);
+    setUploadProgress(0);
+    setUploadComplete(false);
+    // Закрываем модальное окно сразу после начала загрузки
+    setShowUploadBlock(false);
+  };
+
+  const handleUploadProgress = (progress) => {
+    setUploadProgress(progress);
+  };
+
   const handleUploadSuccess = (newVideo) => {
     setGalleryItems(prevItems => [
       {
@@ -164,10 +181,30 @@ const Gallery = () => {
       },
       ...prevItems
     ]);
+    
+    setUploadComplete(true);
+    setIsUploading(false);
+    // Убираем автоматическое скрытие - блок остается до Log Out
+  };
+
+  const handleUploadCancel = () => {
+    setIsUploading(false);
+    setUploadProgress(0);
+    setUploadingVideoTitle('');
+    setUploadComplete(false);
   };
 
   const handleLogout = () => {
-    setShowUploadBlock(false); // Close upload block on logout
+    setShowUploadBlock(false);
+    // Очищаем все состояния загрузки при Log Out
+    setIsUploading(false);
+    setUploadComplete(false);
+    setUploadingVideoTitle('');
+    setUploadProgress(0);
+  };
+
+  const handleCloseModal = () => {
+    setShowUploadBlock(false);
   };
 
   return (
@@ -175,24 +212,40 @@ const Gallery = () => {
       <video autoPlay muted loop playsInline className="background-video">
         <source src="/back.mp4" type="video/mp4" />
       </video>
-      <SmokeBackground />
+     
       <GalleryHeader onToggleUpload={handleToggleUpload} isUploadActive={showUploadBlock} onLogout={handleLogout} />
       
+      {/* Loading Process Block */}
+      {(isUploading || uploadComplete) && (
+        <LoadingProcessBlock 
+          title={uploadingVideoTitle || 'Video Processing'} 
+          progress={uploadComplete ? 100 : uploadProgress}
+          onCancel={isUploading ? handleUploadCancel : undefined}
+          subtitle={
+            uploadComplete ? 'Upload completed successfully! Video is now available in your gallery.' :
+            uploadProgress < 15 ? 'Initializing upload process...' :
+            uploadProgress < 35 ? 'Uploading video file to server...' :
+            uploadProgress < 60 ? 'Processing and analyzing video content...' :
+            uploadProgress < 85 ? 'Optimizing video quality and formats...' :
+            uploadProgress < 100 ? 'Finalizing upload and generating preview...' :
+            'Processing in progress...'
+          }
+          insights={uploadComplete ? [
+            { icon: 'CheckCircle', text: 'Video successfully uploaded and processed' },
+            { icon: 'Zap', text: 'Ready for viewing in gallery' },
+            { icon: 'Brain', text: 'All optimizations completed' }
+          ] : undefined}
+        />
+      )}
+      
       <main className="gallery-content">
-        {showUploadBlock && (
-          <UploadBlock 
-            onClose={handleToggleUpload} 
-            onUploadSuccess={handleUploadSuccess} 
-            onLogout={handleLogout}
-          />
-        )}
         <div className="gallery-title-container">
           <h2 className="gallery-title">Video Gallery</h2>
           <div className="search-container">
             <div className="search-wrapper">
               <input
                 type="text"
-                placeholder="Find videos..."
+                placeholder="Search videos..."
                 className="search-input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -232,24 +285,30 @@ const Gallery = () => {
               onMouseLeave={() => handleMouseLeave(index)}
               onClick={() => handleVideoClick(item)}
             >
-              {item.previewUrl ? (
-                <img
-                  src={item.previewUrl}
-                  alt="Video preview"
-                  className="video-thumbnail"
-                  style={{ objectFit: 'cover' }}
-                />
-              ) : (
-                <video
-                  ref={el => videoRefs.current[index] = el}
-                  className="video-thumbnail"
-                  muted
-                  loop
-                  playsInline
-                >
-                  <source src="/back.mp4" type="video/mp4" />
-                </video>
-              )}
+              <div className="video-thumbnail-container">
+                {item.previewUrl ? (
+                  <img
+                    src={item.previewUrl}
+                    alt="Video preview"
+                    className="video-thumbnail"
+                    style={{ objectFit: 'cover' }}
+                  />
+                ) : (
+                  <video
+                    ref={el => videoRefs.current[index] = el}
+                    className="video-thumbnail"
+                    muted
+                    loop
+                    playsInline
+                  >
+                    <source src="/back.mp4" type="video/mp4" />
+                  </video>
+                )}
+                
+                <button className="delete-button" onClick={(e) => handleDeleteClick(e, item)}>
+                  <img src={deleteIcon} alt="Delete" />
+                </button>
+              </div>
               
               <div className="video-info">
                 <h3 className="video-title">{item.title}</h3>
@@ -263,16 +322,29 @@ const Gallery = () => {
                   ))}
                 </div>
               </div>
-              
-              <button className="delete-button" onClick={(e) => handleDeleteClick(e, item)}>
-                <img src={deleteIcon} alt="Delete" />
-              </button>
             </div>
           ))}
         </div>
       </main>
 
       <Footer activeSection="gallery" />
+      
+      {/* Upload Modal */}
+      {showUploadBlock && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <UploadBlock 
+              onClose={handleCloseModal} 
+              onUploadSuccess={handleUploadSuccess}
+              onUploadStart={handleUploadStart}
+              onUploadProgress={handleUploadProgress}
+              onUploadCancel={handleUploadCancel}
+              onLogout={handleLogout}
+            />
+          </div>
+        </div>
+      )}
+      
       {selectedVideo && (
         <VideoInfoModal 
           video={selectedVideo} 
@@ -286,6 +358,7 @@ const Gallery = () => {
           }} 
         />
       )}
+      
       {videoToDelete && (
         <DeleteConfirmationModal
           videoTitle={videoToDelete.title}

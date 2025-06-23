@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import './UploadBlock.css';
-import LoadingProcessBlock from './LoadingProcessBlock';
 
-const UploadBlock = ({ onClose, onUploadSuccess, onLogout }) => {
+const UploadBlock = ({ onClose, onUploadSuccess, onUploadStart, onUploadProgress, onUploadCancel, onLogout }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
@@ -11,7 +10,6 @@ const UploadBlock = ({ onClose, onUploadSuccess, onLogout }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isAIProcessing, setIsAIProcessing] = useState(false);
-  const [keepVisible, setKeepVisible] = useState(false);
   const uploadBlockRef = useRef(null);
 
   const handleFileChange = (event) => {
@@ -53,22 +51,37 @@ const UploadBlock = ({ onClose, onUploadSuccess, onLogout }) => {
     }
 
     setIsUploading(true);
-    setMessage('Uploading video...');
+    setMessage('');
+
+    // Notify parent component that upload started
+    if (onUploadStart) {
+      onUploadStart(title);
+    }
 
     try {
-      // Simulate video upload (3 seconds)
-      for (let i = 0; i <= 60; i += 20) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 3 seconds total
+      // Simulate 10-second upload process with smooth progress
+      const totalSteps = 100;
+      const stepDelay = 100; // 100ms per step = 10 seconds total
+      
+      for (let i = 0; i <= totalSteps; i += 1) {
+        await new Promise(resolve => setTimeout(resolve, stepDelay));
         setUploadProgress(i);
-      }
-
-      setMessage('Video uploaded, starting AI processing...');
-      setIsAIProcessing(true);
-
-      // Simulate AI processing (7 seconds)
-      for (let i = 60; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 1750)); // 7 seconds total
-        setUploadProgress(i);
+        
+        // Send progress to parent component
+        if (onUploadProgress) {
+          onUploadProgress(i);
+        }
+        
+        // Add some realistic pauses at certain milestones
+        if (i === 15) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        } else if (i === 35) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } else if (i === 60) {
+          await new Promise(resolve => setTimeout(resolve, 250));
+        } else if (i === 85) {
+          await new Promise(resolve => setTimeout(resolve, 400));
+        }
       }
 
       const duration = await getVideoDuration(selectedFile);
@@ -83,20 +96,53 @@ const UploadBlock = ({ onClose, onUploadSuccess, onLogout }) => {
         previewUrl: previewUrl
       };
 
+      // Small delay before completion
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       onUploadSuccess(newVideo);
-      setMessage('Video and AI processing completed successfully!');
-      setKeepVisible(true); // Keep visible until logout
+      setMessage('Video processing completed successfully!');
+      
+      // Modal will be closed by parent component when upload starts
+      
     } catch (error) {
-      setMessage('Upload or processing failed. Please try again.');
+      setMessage('Upload failed. Please try again.');
       console.error('Upload error:', error);
-    } finally {
       setIsUploading(false);
-      setUploadProgress(100);
+      setUploadProgress(0);
+    }
+  };
+
+  const resetForm = () => {
+    setSelectedFile(null);
+    setTitle('');
+    setTag('');
+    setMessage('');
+    setPreviewUrl(null);
+    setIsUploading(false);
+    setUploadProgress(0);
+  };
+
+  const handleCancel = () => {
+    if (isUploading) {
+      // Cancel upload process
+      setIsUploading(false);
+      setUploadProgress(0);
+      setMessage('Upload cancelled.');
+      
+      // Notify parent component about cancellation
+      if (onUploadCancel) {
+        onUploadCancel();
+      }
+      
+      setTimeout(() => {
+        setMessage('');
+      }, 2000);
+    } else {
+      onClose();
     }
   };
 
   const handleLogout = () => {
-    setKeepVisible(false);
     onLogout();
   };
 
@@ -120,107 +166,100 @@ const UploadBlock = ({ onClose, onUploadSuccess, onLogout }) => {
   };
 
   return (
-    <div className="upload-block" ref={uploadBlockRef}>
-      <div className="upload-title">Upload New Video</div>
-      <div className="upload-form">
-        <div className="upload-fields">
-          <div className="upload-field">
-            <label>Video Title</label>
-            <input 
-              type="text" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
-              placeholder="Enter video title" 
-            />
-          </div>
-          <div className="upload-field">
-            <label>Tag</label>
-            <input 
-              type="text" 
-              value={tag} 
-              onChange={(e) => setTag(e.target.value)} 
-              placeholder="Enter tag (optional)" 
-            />
-          </div>
-        </div>
-        <div className="upload-file">
-          {previewUrl ? (
-            <div className="preview-container">
-              <img 
-                src={previewUrl} 
-                alt="Video preview" 
-                style={{
-                  width: '100%',
-                  maxHeight: '200px',
-                  objectFit: 'cover',
-                  borderRadius: '6px',
-                  marginBottom: '12px'
-                }}
+    <>
+      <div className="upload-block" ref={uploadBlockRef}>
+        <h2 className="upload-title">Upload Video</h2>
+        
+        <div className="upload-form">
+          <div className="upload-fields">
+            <div className="upload-field">
+              <label>Title</label>
+              <input 
+                type="text" 
+                value={title} 
+                onChange={(e) => setTitle(e.target.value)} 
+                placeholder="Enter video title"
+                disabled={isUploading}
               />
-              <p style={{ color: '#e0e0e0', marginBottom: '12px' }}>
-                {selectedFile?.name}
-              </p>
             </div>
-          ) : (
-            <span>Upload your video file here</span>
-          )}
-          <input 
-            type="file" 
-            accept="video/*" 
-            onChange={handleFileChange} 
-            style={{ display: 'none' }}
-            id="video-upload"
-          />
-          <label 
-            htmlFor="video-upload" 
-            className="browse-btn"
-            style={{ cursor: 'pointer', textAlign: 'center' }}
-          >
-            {previewUrl ? 'Change Video' : 'Select Video'}
-          </label>
-        </div>
-      </div>
-      {isUploading && (
-        <div className="upload-progress">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${uploadProgress < 60 ? uploadProgress * 1.6667 : 100}%` }}
-            ></div>
+            
+            <div className="upload-field">
+              <label>Tag</label>
+              <input 
+                type="text" 
+                value={tag} 
+                onChange={(e) => setTag(e.target.value)} 
+                placeholder="Add a tag"
+                disabled={isUploading}
+              />
+            </div>
           </div>
-          <span className="progress-text">
-            {uploadProgress < 60 ? `Uploading: ${Math.round(uploadProgress / 1.6667)}%` : 'AI Processing...'}
-          </span>
+          
+          <div 
+            className="upload-file"
+            onClick={() => !isUploading && document.getElementById('video-upload').click()}
+            style={{ 
+              opacity: isUploading ? 0.6 : 1, 
+              cursor: isUploading ? 'not-allowed' : 'pointer' 
+            }}
+          >
+            {previewUrl ? (
+              <div className="preview-container">
+                <img 
+                  src={previewUrl} 
+                  alt="Video preview"
+                />
+                <p>{selectedFile?.name}</p>
+              </div>
+            ) : (
+              <>
+                <span>Drop video file here or click to browse</span>
+                <div className="browse-btn">
+                  Select File
+                </div>
+              </>
+            )}
+            
+            <input 
+              type="file" 
+              accept="video/*" 
+              onChange={handleFileChange} 
+              style={{ display: 'none' }}
+              id="video-upload"
+              disabled={isUploading}
+            />
+          </div>
         </div>
-      )}
-      <div className="buttons-container">
-        <button 
-          className="process-btn" 
-          onClick={onClose}
-          style={{ background: '#2a2a2a' }}
-        >
-          Cancel
-        </button>
-        <button 
-          className="process-btn" 
-          onClick={handleUpload}
-          disabled={isUploading || !selectedFile || !title.trim()}
-          style={{ 
-            opacity: isUploading || !selectedFile || !title.trim() ? 0.7 : 1,
-            cursor: isUploading || !selectedFile || !title.trim() ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {isUploading ? 'Processing...' : 'Upload'}
-        </button>
+        
+        <div className="buttons-container">
+          <button 
+            className="process-btn" 
+            onClick={handleCancel}
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.02)',
+              color: 'rgba(255, 255, 255, 0.6)'
+            }}
+          >
+            {isUploading ? 'Cancel' : 'Close'}
+          </button>
+          <button 
+            className="process-btn" 
+            onClick={handleUpload}
+            disabled={isUploading || !selectedFile || !title.trim()}
+          >
+            {isUploading ? 'Processing...' : 'Upload'}
+          </button>
+        </div>
+        
+        {message && (
+          <div className="upload-message">
+            {message}
+          </div>
+        )}
       </div>
-      {message && <div className="upload-message">{message}</div>}
-      {(isAIProcessing || keepVisible) && (
-        <LoadingProcessBlock 
-          title={title || 'New Video'} 
-          progress={uploadProgress} 
-        />
-      )}
-    </div>
+      
+
+    </>
   );
 };
 

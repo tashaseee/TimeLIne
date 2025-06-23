@@ -48,7 +48,7 @@
 
 .logo-text {
   font-size: 1.7rem;
-  font-weight: 300; /* Thin */
+  font-weight: 300;
   background: linear-gradient(90deg, #f0f0f0 0%, #c0c0c0 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -84,7 +84,7 @@
   color: #b0b0b0;
   text-decoration: none;
   font-size: 1.1rem;
-  font-weight: 300; /* Thin */
+  font-weight: 300;
   transition: all 0.3s ease;
   position: relative;
   padding: 0.6rem 0;
@@ -113,6 +113,16 @@
   transform-origin: left;
 }
 
+.nav-link.active {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.nav-link.active::after {
+  transform: scaleX(1);
+  background: #ffffff;
+}
+
 .lang-dropdown {
   position: relative;
   cursor: pointer;
@@ -123,27 +133,26 @@
 }
 
 .btn {
-  background: linear-gradient(135deg, #333 0%, #222 100%);
-  padding: 0.7rem 1.8rem;
-  border-radius: 30px;
-  color: #e0e0e0;
-  font-weight: 500; /* Slightly bolder */
+  color: #ffffff;
   text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(45, 45, 45, 0.5);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .btn:hover {
-  background: linear-gradient(135deg, #444 0%, #333 100%);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
   color: #ffffff;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
-/* Dropdown styles */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -163,7 +172,7 @@
   color: #b0b0b0;
   transition: all 0.2s ease;
   text-align: center;
-  font-weight: 300; /* Thin */
+  font-weight: 300;
   font-size: 0.95rem;
 }
 
@@ -185,16 +194,7 @@
   position: relative;
   top: -1px;
 }
-/* Header.css - добавить в конец файла */
-.nav-link.active {
-  color: #ffffff;
-  font-weight: 500;
-}
 
-.nav-link.active::after {
-  transform: scaleX(1);
-  background: #ffffff;
-}
 .how-to-use {
   position: relative;
   width: 100%;

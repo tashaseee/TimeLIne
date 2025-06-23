@@ -95,7 +95,7 @@ const Header = () => {
               </div>
             )}
           </div>
-          <a href="/gallery" className="nav-link btn">Gallery</a>
+          <a href="/gallery" className="btn">Gallery</a>
         </nav>
       </div>
     </header>

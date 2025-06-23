@@ -7,7 +7,6 @@ const VideoInfoModal = ({ video, onClose, icons }) => {
   const handleCopyText = (text) => {
     navigator.clipboard.writeText(text)
       .then(() => {
-        // Можно добавить уведомление об успешном копировании
         console.log('Text copied to clipboard');
       })
       .catch(err => {

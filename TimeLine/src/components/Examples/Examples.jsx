@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import './Examples.css';
+
+const TextItem = memo(({ text, index, isActive, formatTime }) => (
+  <p
+    key={index}
+    className={`sidebar-text-item ${isActive ? 'active-text' : ''}`}
+  >
+    <span className="timestamp">{formatTime(index)}</span> {text}
+  </p>
+));
 
 const Examples = () => {
   const images = [
@@ -9,7 +18,6 @@ const Examples = () => {
   ];
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeTextIndex, setActiveTextIndex] = useState(0);
 
   const textSections = [
     `(РАУ Альберт Павлович) Говорящий хочет узнать, как сейчас организован входной контроль импортируемой продукции...`,
@@ -20,15 +28,15 @@ const Examples = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
-      setActiveTextIndex((prev) => (prev + 1) % textSections.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [images.length, textSections.length]);
+  }, [images.length]);
 
   const formatTime = (index) => {
-    const hours = Math.floor(index * 0.5);
-    const minutes = (index * 30) % 60;
-    const seconds = (index * 20) % 60;
+    const totalSeconds = index * 30;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
@@ -45,7 +53,7 @@ const Examples = () => {
               {images.map((img, index) => (
                 <div
                   key={index}
-                  className={`carousel-item ${index === currentIndex ? 'active' : ''}`}
+                  className={`carousel-item ${index === currentIndex ? 'active' : index === (currentIndex + 1) % images.length ? 'next' : 'prev'}`}
                   style={{ backgroundImage: `url(${img})` }}
                 ></div>
               ))}
@@ -54,12 +62,13 @@ const Examples = () => {
           <div className="examples-sidebar">
             <div className="sidebar-text">
               {textSections.map((text, index) => (
-                <p 
+                <TextItem
                   key={index}
-                  className={index === activeTextIndex ? 'active-text' : ''}
-                >
-                  <span className="timestamp">{formatTime(index)}</span> {text}
-                </p>
+                  text={text}
+                  index={index}
+                  isActive={index === currentIndex}
+                  formatTime={formatTime}
+                />
               ))}
             </div>
           </div>
